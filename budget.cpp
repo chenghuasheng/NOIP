@@ -1,3 +1,4 @@
+//金明的预算方案：http://www.joyoi.cn/problem/tyvj-1057
 #include<iostream>
 #include<fstream>
 #include <vector>

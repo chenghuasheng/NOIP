@@ -1,4 +1,4 @@
-//http://www.joyoi.cn/problem/tyvj-1124 
+//»¨µê³÷´°£ºhttp://www.joyoi.cn/problem/tyvj-1124 
 #include<iostream> 
 #include<fstream>
 using namespace std;
