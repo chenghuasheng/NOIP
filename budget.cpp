@@ -13,7 +13,6 @@ vector<int>  acc[61];
 
 int main(){
 	fin>>n>>m;
-	int j=0;
 	for(int i=1;i<=m;i++) { 
 		fin>>v[i]>>p[i]>>q[i];
 		if (q[i]>0) {
