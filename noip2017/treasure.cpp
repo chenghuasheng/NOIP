@@ -1,3 +1,4 @@
+//http://www.joyoi.cn/problem/noip2017-treasure  noip2017БІВи 
 #include<iostream>
 #include<fstream>
 inline bool isSub(int x,int y)  { return (x&y)==y; }
