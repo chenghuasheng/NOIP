@@ -22,15 +22,9 @@ int main(){
         for(int i=0;i<n;i++){
             int inc=0;
             if ((huocai[i]&mi2[k])>0){
-                inc-=mi2[k];
-                k--;
-                while(k>=0){
-                    if ((mi2[k]&ret)>0){
-                        inc+=(mi2[k]&ret)-2*(mi2[k]&huocai[i]);
-                    }
-                    k--;
-                }
-                huocai[i]+=inc;
+            	int old=huocai[i];
+            	huocai[i]=huocai[i]^ret;
+            	inc=huocai[i]-old;
                 fout<<-1*inc<<' '<<i+1<<endl;
                 break;
             }
