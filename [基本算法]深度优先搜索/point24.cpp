@@ -1,9 +1,10 @@
 #include <fstream>
-#include <iostream>
 #include <cstring>
-
 using namespace std;
+ifstream fin("point24.in");
+ofstream fout("point24.out");
 
+typedef char String[20];
 struct oppath{
     int a,b;
     char op;
@@ -12,17 +13,16 @@ struct oppath{
 char chars[4];
 int shu[4];
 oppath paths[4];
-char* ans[4];
-char* minans="ZZZZZ";
+String ans[4] ,buffer;
+String minans="ZZZZZ";
 
 void output(){
     for(int i=0;i<4;i++) sprintf(ans[i],"%c",chars[i]);
-//     for(int i=0;i<3;i++){
-//         char * temp;
-//         sprintf(temp,"(%c%c%c)",chars[paths[i].a],paths[i].op,chars[paths[i].b]);
-//         sprintf(ans[paths[i].a],"%s",temp);
-//     }
-//     if (strcmp(minans,ans[paths[2].a])>0) strcpy(minans,ans[paths[2].a]);
+    for(int i=0;i<3;i++){
+        sprintf(buffer,"(%s%c%s)",ans[paths[i].a],paths[i].op,ans[paths[i].b]);
+        sprintf(ans[paths[i].a],"%s",buffer);
+    }
+    if (strcmp(minans,ans[paths[2].a])>0) strcpy(minans,ans[paths[2].a]);
 }
 void dfs(int dep){
     if (dep>=3){
@@ -91,7 +91,7 @@ void dfs(int dep){
 
 int main(){
     for(int i=0;i<4;i++) {
-        cin>>chars[i];
+        fin>>chars[i];
         switch (chars[i])
         {
             case 'A':
@@ -115,5 +115,5 @@ int main(){
         }
     }
     dfs(0);
-    cout<<minans;
+    fout<<minans;
 }
