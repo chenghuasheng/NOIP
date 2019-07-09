@@ -8,9 +8,9 @@ FILE* fout;
 
 const int MAXN=200000;
 vector<int> graph[MAXN];
-int dp_max1[MAXN];
-int dp_max2[MAXN];
-int dp_next[MAXN];
+int dp_max1[MAXN];//dp_max1[i]表示以i为根的子树中，以i为末尾结点的最长路径
+int dp_max2[MAXN];//dp_max2[i]表示以i为根的子树中的最长路径
+int dp_next[MAXN];//似乎没用到了
 
 bool on_max_path[MAXN];
 int last_max_len;
