@@ -1,6 +1,5 @@
+//#1003. 「一本通 5.1 例 3」凸多边形的划分
 #include<fstream>
-#include<iostream>
-
 using namespace std;
 ifstream fin("abc.in");
 ofstream fout("abc.out");

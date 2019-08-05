@@ -1,3 +1,4 @@
+//#1001. 「一本通 5.1 例 1」石子合并 
 #include<fstream>
 using namespace std;
 ifstream fin("merge.in");

@@ -1,6 +1,5 @@
+//#1006. 「一本通 5.1 练习 3」矩阵取数游戏 
 #include <fstream>
-#include <iostream>
-
 using namespace std;
 ifstream fin("game.in");
 ofstream fout("game.out");

@@ -1,3 +1,4 @@
+//#1004. 「一本通 5.1 练习 1」括号配对 
 #include <fstream>
 using namespace std;
 ifstream fin("kh.in");

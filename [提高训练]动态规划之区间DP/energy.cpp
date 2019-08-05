@@ -1,3 +1,4 @@
+//#1002. 「一本通 5.1 例 2」能量项链
 #include <fstream>
 using namespace std;
 ifstream fin("energy.in");
