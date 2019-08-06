@@ -1,6 +1,6 @@
 //#1005. 「一本通 5.1 练习 2」分离与合体
 #include <fstream>
-#include <iostream>
+#include <vector>
 
 using namespace std;
 ifstream fin("separation.in");
@@ -11,14 +11,15 @@ int dp_path[MAXN+1][MAXN+1];
 
 int a[MAXN+1];
 int n;
-void print(int i,int j){
+vector<int> tree[MAXN];
+
+void search(int i,int j,int deep){
     if (i>=j) return;
     else {
         int k=dp_path[i][j];
-        fout<<k<<' ';
-        cout<<i<<'-'<<j<<':'<<k<<endl;
-        print(i,k);
-        print(k+1,j);
+        tree[deep].push_back(k);
+        search(i,k,deep+1);
+        search(k+1,j,deep+1);
     }
 }
 int main(){
@@ -38,5 +39,9 @@ int main(){
         }
     }
     fout<<dp_max[1][n]<<endl;
-    print(1,n);
+    search(1,n,0);
+    for(int i=0;i<n;i++){
+        int s=tree[i].size();
+        for(int j=0;j<s;j++) fout<<tree[i][j]<<' ';
+    }
 }
