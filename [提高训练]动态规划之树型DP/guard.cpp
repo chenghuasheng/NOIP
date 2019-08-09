@@ -13,27 +13,21 @@ int n;
 
 void dp(int x){
     int size=graph[x].size();
-    int s1=0,s0=0;
-    bool hasChildGuard=false;
+    int s2=0,s0=0;
     int min_deta=INF;
     for(int k=0;k<size;k++){
         int y=graph[x][k];
         dp(y);
-        s1+=min(dp_min[y][0],dp_min[y][2]);
-        if (dp_min[y][2]<dp_min[y][1]){
-            s0+=dp_min[y][2];
-            hasChildGuard=true;
-        }else s0+=dp_min[y][1];
-        int deta=dp_min[y][2]-dp_min[y][1];
+        s2+=min(dp_min[y][0],dp_min[y][2]);//驻守时，子结点可驻守也可不驻守
+        //这里注意，dp_min[y][1]总是大于等于dp_min[y][0]的
+        s0+=min(dp_min[y][1],dp_min[y][2]);//不驻守不观察时，子结点必须可观察
+        //不驻守但要可观察，则子结点必须至少有一个驻守，这里计算最少的增量
+        int deta=dp_min[y][2]-min(dp_min[y][1],dp_min[y][2]);
         if (deta<min_deta) min_deta=deta;
     }
-    dp_min[x][2]=cost[x]+s1;
+    dp_min[x][2]=cost[x]+s2;
     dp_min[x][0]=s0;
-    if (hasChildGuard){
-        dp_min[x][1]=s0;
-    }else {
-        dp_min[x][1]=s0+min_deta;
-    }
+    dp_min[x][1]=s0+min_deta;
 }
 int main(){
     fin>>n;
