@@ -5,50 +5,73 @@ using namespace std;
 const int MAXN=200000;
 const int MAXL=1000000000;
 
-int person_pos[MAXN+1],dir[MAXN+1];
-int exit_pos[MAXN+1],limit[MAXN+1];
+int person_pos[MAXN+1],exit_pos[MAXN+2];
+int dir[MAXN+1],limit[MAXN+1];
+int next_exit[MAXN+2],prev_exit[MAXN+2];
 struct Node{
     int person;
     int exit;
     int distance;
     bool operator < (const Node other) const{
-        if (distance==other.distance&&exit==other.exit)
-            return person>other.person;
-        else return distance>other.distance;
+        if (distance==other.distance){
+            if (exit==other.exit) return person>other.person;
+            else return exit>other.exit;
+        }else return distance>other.distance;
     }
 };
 priority_queue<Node> minQueue;
 int leaved[MAXN+1];
-
 int n,m,l;
+int find_nearest_exit(int i){
+    int pos=person_pos[i];
+    int left=1;
+    int right=m+1;
+    while (left<right){
+        int mid=(left+right)/2;
+        if (exit_pos[mid]>pos) right=mid;
+        else if (exit_pos[mid+1]<=pos) left=mid+1;
+        else {
+            left=mid;
+            break;
+        } 
+    }
+    if (pos==exit_pos[left]) return left;
+    else {
+        if (dir[i]==0) return (left % m)+1;
+        else return left;
+    }
+}
+int find_next_exit(int i,int j){
+    int oldj=j;
+    do {
+        if (dir[i]==0) j=next_exit[j];
+        else j=prev_exit[j];
+        if (j==oldj){
+            return -1;
+        }
+        oldj=j;
+    }while(limit[j]<=0);
+    return j; 
+}
 int main(){
     cin>>n>>m>>l;
+    exit_pos[1]=0;exit_pos[m+1]=l;
     for(int i=2;i<=m;i++) cin>>exit_pos[i];
-    for(int i=1;i<=m;i++) cin>>limit[i];
+    for(int i=1;i<=m;i++) {
+        cin>>limit[i];
+        prev_exit[i]=(i-2+m) % m + 1;
+        next_exit[i]= i % m + 1;
+    }
     for(int i=1;i<=n;i++) cin>>dir[i]>>person_pos[i];
     for(int i=1;i<=n;i++){
-        int mindis=MAXL;
-        int minj=0;
+        int j=find_nearest_exit(i);
+        int dis;
         if (dir[i]==0){
-            for(int j=m;j>=1;j--){
-                int dis=(exit_pos[j]-person_pos[i]+l) % l;
-                if (dis<mindis) {
-                    mindis=dis;
-                    minj=j;
-                }
-                else break;
-            }
+            dis=(exit_pos[j]-person_pos[i]+l) % l;
         }else {
-            for(int j=1;j<=m;j++){
-                int dis=(person_pos[i]-exit_pos[j]+l) % l;
-                if (dis<mindis) {
-                    mindis=dis;
-                    minj=j;
-                }
-                else break;
-            }
+            dis=(person_pos[i]-exit_pos[j]+l) % l;
         }
-        Node nd={i,minj,mindis};
+        Node nd={i,j,dis};
         minQueue.push(nd);
     }
     while(!minQueue.empty()){
@@ -60,36 +83,25 @@ int main(){
         if (limit[j]>0){
             leaved[i]=j;
             limit[j]--;
-        }else {
-            bool hasNew=true;
-            if (dir[i]==0){
-                do {
-                    j=(j % m) +1;
-                    if (j==cur.exit){
-                        hasNew=false;
-                        break;
-                    }
-                }while(limit[j]<=0);
-                if (hasNew) dis=(exit_pos[j]-person_pos[i]+l) % l;
-            }else {
-                do {
-                    j=(j-2+m) % m +1;
-                    if (j==cur.exit){
-                        hasNew=false;
-                        break;
-                    }
-                }while(limit[j]<=0);
-                if (hasNew) dis=(person_pos[i]-exit_pos[j]+l) % l;
+            if (limit[j]==0){
+                next_exit[prev_exit[j]]=next_exit[j];
+                prev_exit[next_exit[j]]=prev_exit[j];
             }
-            if (hasNew){
-                cur.exit=j;
-                cur.distance=dis;
+        }else {
+            int newj=find_next_exit(i,j);
+            if (newj>0){
+                cur.exit=newj;
+                if (dir[i]==0){
+                    cur.distance=(exit_pos[newj]-person_pos[i]+l) % l;
+                }else {
+                    cur.distance=(person_pos[i]-exit_pos[newj]+l) % l;
+                }
                 minQueue.push(cur);
             }
         }
     }    
     
-    int ans=0;
-    for(int i=0;i<=n;i++) ans=ans xor(i*leaved[i]);
+    long long ans=0;
+    for(int i=0;i<=n;i++) ans^=(1LL*i*leaved[i]);
     cout<<ans;
 }
