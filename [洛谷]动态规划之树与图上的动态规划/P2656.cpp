@@ -11,7 +11,7 @@ struct Edge{
     int from;
     int to;
     int mogu;
-    float xishu;
+    double xishu;
 };
 Edge edges[MAXM+1];
 vector<Edge> G[MAXN+1];
@@ -21,7 +21,7 @@ int nw[MAXN+1],dp[MAXN+1];
 int dfn[MAXN+1],low[MAXN+1],scc[MAXN+1];
 stack<int> st;
 bool inStack[MAXN+1];
-int index;
+int index,sccIndex;
 
 void tarjan(int u){
     dfn[u]=low[u]=index++;
@@ -31,19 +31,20 @@ void tarjan(int u){
         int v=G[u][k].to;
         if (inStack[v]){
             low[u]=min(low[u],dfn[v]);
-        }else{
+        }else if (!dfn[v]){
             tarjan(v);
             low[u]=min(low[u],low[v]);
         }
     }
     if (dfn[u]==low[u]){
-       while(!st.empty()){
-           int v=st.top();
-           st.pop();
-           inStack[v]=false;
-           scc[v]=u;
-           if (v==u) break;
-       } 
+        sccIndex++;
+        while(!st.empty()){
+            int v=st.top();
+            st.pop();
+            inStack[v]=false;
+            scc[v]=sccIndex;
+            if (v==u) break;
+        } 
     }
 }
 void buildGNew(){
@@ -64,6 +65,23 @@ void buildGNew(){
         }
     }
 }
+
+// void spfa(){
+//     queue<int> qe;
+//     qe.push(s);
+//     dp[s]=nw[s];
+//     while(!qe.empty()){
+//         int u=qe.front();
+//         qe.pop();
+//         for(int k=0;k<GNew[u].size();k++){
+//             int v=GNew[u][k].to;
+//             if (dp[v]<dp[u]+GNew[u][k].mogu+nw[v]){
+//                 dp[v]=dp[u]+GNew[u][k].mogu+nw[v];
+//                 qe.push(v);
+//             } 
+//         }
+//     }
+// }
 bool visited[MAXN+1];
 void tree(int u){
     int t=0;
@@ -79,7 +97,7 @@ int main(){
     cin>>n>>m;
     for(int i=0;i<m;i++){
         int u,v,gu;
-        float xi;
+        double xi;
         cin>>u>>v>>gu>>xi;
         edges[i]={u,v,gu,xi};
         G[u].push_back(edges[i]);
@@ -87,6 +105,11 @@ int main(){
     cin>>s;
     tarjan(s);
     buildGNew();
+    s=scc[s];
+    //spfa();
     tree(s);
+    // int ans=0;
+    // for(int u=1;u<=sccIndex;u++) ans=max(ans,dp[u]);
+    // cout<<ans;
     cout<<dp[s];
 }

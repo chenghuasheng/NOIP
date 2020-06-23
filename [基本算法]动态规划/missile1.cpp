@@ -13,9 +13,9 @@ int d1[MAXN],d2[MAXN];
 int main(){
     fin>>n;
     for(int i=0;i<n;i++) fin>>high[i];
-    l1=0;
+    l1=1;
     d1[0]=high[0];
-    l2=0;
+    l2=1;
     d2[0]=high[0];
 
     for(int i=1;i<n;i++){
