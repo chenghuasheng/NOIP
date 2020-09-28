@@ -2,90 +2,68 @@
 #include <queue>
 
 using namespace std;
-int a[13][4];
-struct JiGuan{
-    int button=0;
-    void turn(int i){
-        int t=get(i);
-        int w=a[i][t];
-        t=(++t)%4;
-        set(i,t);
-        int t1=get(w);
-        t1=(++t1)%4;
-        set(w,t1);
-    }
-    int get(int i){
-        int pos=(i-1)*2;
-        int flag=(1<<pos)+(1<<(pos+1));
-        int si=(button&flag)>>pos;
-        return si;
-    }
-    void set(int i,int val){
-        int pos=(i-1)*2;
-        int flag=(1<<pos)+(1<<(pos+1));
-        int si=val<<pos;
-        flag=0xffffffff-flag;
-        button=(button&flag)+si;
-    }
-};
 struct State{
-    JiGuan jg;
+    char buttons[13]={0};//按钮状态0—3
+    char actions[20]={0};//动作串
     int step;
-    int action;
-    int id;
-    int pid;
+    int dist;
+    bool operator<(const State other)const{
+        return (dist/2+step)>(other.dist/2+other.step);
+    }
 };
-vector<State> states;
-bool visited[20000000];
-queue<int> qe;
-State start;
-int scount;
-void output(int id){
-   int pid=states[id].pid;
-   if (pid>0) output(pid);
-   cout<<states[id].action<<" "; 
+int calc_dist(State s){
+    int ret=0;
+    for(int i=1;i<=12;i++){
+        ret+=(4-s.buttons[i])%4;
+    }
+    return ret;
 }
+int gethash(State s){
+    int ret=0;
+    for(int i=1;i<=12;i++){
+        int p=(i-1)*2;
+        ret+=s.buttons[i]*(1<<p);
+    }
+    return ret;
+}
+int a[13][4];
+bool visited[20000000];
+priority_queue<State> priQueue;
+State start;
 int main(){
-    for(int i=1;i<=12;i++) {
+    for(int i=1;i<=12;i++){
         int si;
-        cin>>si; 
-        start.jg.set(i,si-1);
+        cin>>si;
+        start.buttons[i]=si-1;
         for(int j=0;j<4;j++) cin>>a[i][j];
     }
-    start.id=scount;
     start.step=0;
-    start.action=0;
-    start.pid=-1;
-    states.push_back(start);
-    scount++;
-    qe.push(start.id);
-    visited[start.jg.button]=true;
-    while (!qe.empty())
-    {
-        State cur=states[qe.front()];
-        if (cur.jg.button==0) {
+    start.dist=calc_dist(start);
+    int key=gethash(start);
+    visited[key]=true;
+    priQueue.push(start);
+    while(!priQueue.empty()){
+        State cur=priQueue.top();
+        priQueue.pop();
+        if (cur.dist==0){
             cout<<cur.step<<endl;
-            output(cur.id);
+            for(int i=1;i<=cur.step;i++) cout<<((int)cur.actions[i])<<" ";
             return 0;
-        }
-        qe.pop();
-        for(int i=1;i<=12;i++){
-            int si=cur.jg.get(i);
-            if (si==0) continue;
-            JiGuan newjg=cur.jg;
-            newjg.turn(i);
-            if (!visited[newjg.button]){
-                State next;
-                next.jg=newjg;
-                next.action=i;
-                next.step=cur.step+1;
-                next.id=scount;
-                next.pid=cur.id;
-                states.push_back(next);
-                scount++; 
-                qe.push(next.id);
-                visited[newjg.button]=true;
+        }else {
+            for(int i=1;i<=12;i++){
+                State next=cur;
+                int w=a[i][next.buttons[i]];
+                next.buttons[i]=(++next.buttons[i])%4;
+                next.buttons[w]=(++next.buttons[w])%4;
+                int key=gethash(next);
+                if (!visited[key]){
+                    next.step++;
+                    next.actions[next.step]=i;
+                    next.dist=calc_dist(next);
+                    priQueue.push(next);
+                    visited[key]=true;
+                }
             }
         }
-    }  
+    }
 }
