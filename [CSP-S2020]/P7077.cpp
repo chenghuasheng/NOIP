@@ -1,90 +1,60 @@
 #include <cstdio>
 #include <vector>
 using namespace std;
-//ifstream cin("P7077_2.in");
-//ofstream cout("P7077_2_.out");
 const long long MOD=998244353;
 const int MAXN=100000;
 struct Func{
     int t;
     int p,v;
-    vector<int> subs;
 };
-int a[MAXN+1];
-Func funcs[MAXN+1];
-int runs[MAXN+1];
+long long a[MAXN+1];
+Func funcs[MAXN+2];
+vector<int> subs[MAXN+2];
 int n,m,q;
-struct Node{
-    int l,r;
-    long long lz=1;
-    long long val;
-};
-Node tree[MAXN*4];
-void build(int i,int l,int r){
-    tree[i].l=l;
-    tree[i].r=r;
-    if (l==r){
-        tree[i].val=a[l];
-        return;
-    }
-    int mid=(l+r)/2;
-    build(2*i,l,mid);
-    build(2*i+1,mid+1,r);
-}
-void mult(int i,int v){
-    tree[i].lz=(tree[i].lz*v)%MOD;
-}
-void push_down(int i){
-    if (tree[i].lz>1) {
-        if (tree[i].l==tree[i].r) {
-            tree[i].val=(tree[i].val*tree[i].lz)%MOD;
-            tree[i].lz=1;
-            return ;
+long long mult[MAXN+2],preMult[MAXN+2];
+int deg[MAXN+1];
+bool vis[MAXN+2];
+void dfs(int i){
+    deg[i]++;
+    if (funcs[i].t==1) mult[i]=1;
+    else if (funcs[i].t==2) mult[i]=funcs[i].v;
+    else if (funcs[i].t==3){
+        mult[i]=1;
+        for(int k=0;k<subs[i].size();k++){
+            int j=subs[i][k];
+            if (!vis[j]) dfs(j);
+            else deg[j]++;
+            mult[i]=(mult[i]*mult[j])%MOD;
         }
-        tree[2*i].lz=(tree[2*i].lz*tree[i].lz)%MOD;
-        tree[2*i+1].lz=(tree[2*i+1].lz*tree[i].lz)%MOD;
-        tree[i].lz=1;
     }
+    vis[i]=true;
 }
-void update(int i,int p,int v){
-    push_down(i);
-    if (tree[i].l==tree[i].r){
-        tree[i].val=(tree[i].val+v)%MOD;
-        return;
-    }
-    if (p<=tree[2*i].r) update(2*i,p,v);
-    else update(2*i+1,p,v);
-}
-long long get(int i,int p){
-    push_down(i);
-    if (tree[i].l==tree[i].r){
-        return tree[i].val;
-    }
-    if (p<=tree[2*i].r) return get(2*i,p);
-    else return get(2*i+1,p);
-}
-void dofunc(int i){
-    switch (funcs[i].t)
-    {
-        case 1:
-            update(1,funcs[i].p,funcs[i].v);
-            break;
-        case 2:
-            mult(1,funcs[i].v);
-            break;
-        case 3:
-            int s=funcs[i].subs.size();
-            for(int k=0;k<s;k++){
-               int g=funcs[i].subs[k];
-               dofunc(g); 
+void dfs2(int i,long long step_mult){
+    if (deg[i]>1){
+        preMult[i]=(preMult[i]+step_mult)%MOD;
+        deg[i]--;
+    }else {
+        if (funcs[i].t==1) {
+            int p=funcs[i].p;
+            a[p]=(a[p]+(funcs[i].v*(step_mult+preMult[i])%MOD)%MOD)%MOD;
+            preMult[i]=0;
+        }else if (funcs[i].t==3){
+            step_mult=(step_mult+preMult[i])%MOD;
+            for(int k=subs[i].size()-1;k>=0;k--){
+                int j=subs[i][k];
+                dfs2(j,step_mult);
+                step_mult=(step_mult*mult[j])%MOD;  
             }
-            break;
+        }
     }
 }
+
+
 int main(){
     scanf("%d",&n);
     for(int i=1;i<=n;i++) scanf("%d",&a[i]);
     scanf("%d",&m);
+    
     for(int i=1;i<=m;i++){
         int t,p,v,c;
         scanf("%d",&t);
@@ -104,18 +74,21 @@ int main(){
                 for(int k=0;k<c;k++) {
                     int g;
                     scanf("%d",&g);
-                    funcs[i].subs.push_back(g);
+                    subs[i].push_back(g);
                 }
                 break;
         }
     }
 
-    build(1,1,n);
     scanf("%d",&q);
+    funcs[m+1].t=3;
     for(int k=0;k<q;k++){
         int f;
         scanf("%d",&f);
-        dofunc(f);
+        subs[m+1].push_back(f);
     }
-    for(int i=1;i<=n;i++) printf("%lld ",get(1,i));
+    dfs(m+1);
+    for(int i=1;i<=n;i++) a[i]=(a[i]*mult[m+1])%MOD;
+    dfs2(m+1,1);
+    for(int i=1;i<=n;i++) printf("%lld ",a[i]);
 }
